@@ -30,6 +30,8 @@ omnistore.StringerSet[MyEnum](myFloat, 3.14)
 
 ### Get
 
+> `Get` has a error returning equivalent called `GetE`
+
 ```go
 name := omnistore.Get[string]("myname")
 // name == "James"
@@ -39,6 +41,8 @@ pi := omnistore.Get[float64]("pi")
 ```
 
 ### StringerGet
+
+> `StringerGet` has an error returning equivalent called `StringerGetE`
 
 ```go
 myString := MyEnum("examplestringerstring")

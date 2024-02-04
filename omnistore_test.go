@@ -1,6 +1,7 @@
 package omnistore
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 )
@@ -196,6 +197,163 @@ func TestStringerGet(t *testing.T) {
 			svalue string
 			ivalue int
 		}](key)
+		if !reflect.DeepEqual(input, got) {
+			t.Errorf("expected key: %s to have value: %#v but had value: %#v\n",
+				key, input, got)
+		}
+	})
+}
+
+func TestGetE(t *testing.T) {
+	t.Run("get ErrValueNotFound", func(t *testing.T) {
+		key := "novalue"
+		expectedErr := ErrValueNotFound
+		_, err := GetE[int](key)
+		if !errors.Is(err, expectedErr) {
+			t.Errorf("expected error: %#v but got: %#v\n", expectedErr, err)
+		}
+	})
+	t.Run("get ErrWrongType", func(t *testing.T) {
+		key := "wrongtype"
+		input := 42
+		expectedErr := ErrWrongType
+		Set(key, input)
+		_, err := GetE[string](key)
+		if !errors.Is(err, expectedErr) {
+			t.Errorf("expected error: %#v but got: %#v\n", expectedErr, err)
+		}
+	})
+	t.Run("get an int value", func(t *testing.T) {
+		key := "myint"
+		input := 42
+		Set(key, input)
+		got, err := GetE[int](key)
+		if err != nil {
+			t.Errorf("expected no error but got: %#v\n", err)
+		}
+		if !reflect.DeepEqual(input, got) {
+			t.Errorf("expected key: %s to have value: %#v but had value: %#v\n",
+				key, input, got)
+		}
+	})
+	t.Run("get a float value", func(t *testing.T) {
+		key := "myfloat"
+		input := 3.14
+		Set(key, input)
+		got, err := GetE[float64](key)
+		if err != nil {
+			t.Errorf("expected no error but got: %#v\n", err)
+		}
+		if !reflect.DeepEqual(input, got) {
+			t.Errorf("expected key: %s to have value: %#v but had value: %#v\n",
+				key, input, got)
+		}
+	})
+	t.Run("get a string value", func(t *testing.T) {
+		key := "mystring"
+		input := "hello, world!"
+		Set(key, input)
+		got, err := GetE[string](key)
+		if err != nil {
+			t.Errorf("expected no error but got: %#v\n", err)
+		}
+		if !reflect.DeepEqual(input, got) {
+			t.Errorf("expected key: %s to have value: %#v but had value: %#v\n",
+				key, input, got)
+		}
+	})
+	t.Run("get a struct value", func(t *testing.T) {
+		key := "mystruct"
+		input := struct {
+			svalue string
+			ivalue int
+		}{"hello, world!", 42}
+		Set(key, input)
+		got, err := GetE[struct {
+			svalue string
+			ivalue int
+		}](key)
+		if err != nil {
+			t.Errorf("expected no error but got: %#v\n", err)
+		}
+		if !reflect.DeepEqual(input, got) {
+			t.Errorf("expected key: %s to have value: %#v but had value: %#v\n",
+				key, input, got)
+		}
+	})
+}
+
+func TestStringerGetE(t *testing.T) {
+	t.Run("get ErrValueNotFound", func(t *testing.T) {
+		key := MyEnum("valuenotfound")
+		expectedErr := ErrValueNotFound
+		_, err := StringerGetE[MyEnum, int](key)
+		if !errors.Is(err, expectedErr) {
+			t.Errorf("expected error: %#v but got: %#v\n", expectedErr, err)
+		}
+	})
+	t.Run("get ErrValueNotFound", func(t *testing.T) {
+		key := MyEnum("wrongtypeerror")
+		expectedErr := ErrWrongType
+		StringerSet(key, 42)
+		_, err := StringerGetE[MyEnum, string](key)
+		if !errors.Is(err, expectedErr) {
+			t.Errorf("expected error: %#v but got: %#v\n", expectedErr, err)
+		}
+	})
+	t.Run("get an int value", func(t *testing.T) {
+		key := MyEnum("mystringerint")
+		input := 42
+		StringerSet(key, input)
+		got, err := StringerGetE[MyEnum, int](key)
+		if err != nil {
+			t.Errorf("expected no error but got: %#v\n", err)
+		}
+		if !reflect.DeepEqual(input, got) {
+			t.Errorf("expected key: %s to have value: %#v but had value: %#v\n",
+				key, input, got)
+		}
+	})
+	t.Run("get a float value", func(t *testing.T) {
+		key := MyEnum("mystringerfloat")
+		input := 3.14
+		StringerSet(key, input)
+		got, err := StringerGetE[MyEnum, float64](key)
+		if err != nil {
+			t.Errorf("expected no error but got: %#v\n", err)
+		}
+		if !reflect.DeepEqual(input, got) {
+			t.Errorf("expected key: %s to have value: %#v but had value: %#v\n",
+				key, input, got)
+		}
+	})
+	t.Run("get a string value", func(t *testing.T) {
+		key := MyEnum("mystringerstring")
+		input := "hello, world!"
+		StringerSet(key, input)
+		got, err := StringerGetE[MyEnum, string](key)
+		if err != nil {
+			t.Errorf("expected no error but got: %#v\n", err)
+		}
+		if !reflect.DeepEqual(input, got) {
+			t.Errorf("expected key: %s to have value: %#v but had value: %#v\n",
+				key, input, got)
+		}
+	})
+	t.Run("get a struct value", func(t *testing.T) {
+		key := MyEnum("mystringerstruct")
+		input := struct {
+			svalue string
+			ivalue int
+		}{"hello, world!", 42}
+		StringerSet(key, input)
+		got, err := StringerGetE[MyEnum, struct {
+			svalue string
+			ivalue int
+		}](key)
+		if err != nil {
+			t.Errorf("expected no error but got: %#v\n", err)
+		}
 		if !reflect.DeepEqual(input, got) {
 			t.Errorf("expected key: %s to have value: %#v but had value: %#v\n",
 				key, input, got)
