@@ -64,12 +64,11 @@ func GetE[T any](key string) (T, error) {
 	if value, ok := internalStore[key]; ok {
 		if v, ok := value.(T); ok {
 			return v, nil
-		} else {
-			return zeroValue, fmt.Errorf("type %T: %w", zeroValue, ErrWrongType)
 		}
+		return zeroValue, fmt.Errorf("type %T: %w", zeroValue, ErrWrongType)
 	}
 
-	return zeroValue, fmt.Errorf("value %s: %w", key, ErrValueNotFound)
+	return zeroValue, fmt.Errorf("value of key %s: %w", key, ErrValueNotFound)
 }
 
 // StringerGet will return any value of a key that implements fmt.Stringer if the internal store has the value.
